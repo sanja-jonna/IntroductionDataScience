@@ -1,0 +1,101 @@
+---
+title: "INET4061_Lab3"
+author: "Sanjana Jonnalagadda"
+date: "September 29, 2018"
+output: html_document
+---
+##Overview
+ 1. Objective: The objective of this notebook is to compare a sleep dataset that has two groups with using a independent two-sample t-test, paired-sample t-test, and calculating the statistical power for each test. 
+  
+  2. References:
+   https://www.statmethods.net/stats/power.html
+   
+   http://www.cookbook-r.com/Statistical_analysis/t-test/
+   
+```{r}
+require (pwr)
+```
+
+##Data
+A built in R dataset for sleep rates between two different groups is used to compare the two groups using independent two sample t-test and paired sample test.
+
+```{r sleep dataset}
+
+sleep_wide <- data.frame(
+    ID=1:10,
+    group1=sleep$extra[1:10],
+    group2=sleep$extra[11:20]
+)
+sleep_wide
+
+```
+
+##Explatory Data Analysis
+
+Compare two groups using the independent two-sample t-test:
+
+In this test, the null hypothesis would be that the two sample means should be equal. Beause the two sample means are not equal to each other after the independent two-sample t test, the null hypothesis is to be rejected. 
+
+The confidence interval of the test is 95% which means that the range of the sample values would contain the population mean 95% of the time with a 5% margin of error. The 5% margin of error relates to the significance level. 
+
+For this test, the significance level is at 0.05. The p value is 0.07919. Since the p-value is greater than the significance level there is not enough evidence that the difference between the two population means is statistically significant. Therefore, for this test, the null hypothesis is failed to be rejected even though the sample means are not equal to each other.  
+
+```{r 2-Sample T-Test}
+t.test(extra ~ group, sleep, var.equal=TRUE)
+```
+
+Compare two groups using the Paired-sample t-test:
+
+For this test, the null hypothesis between the paired observations should have a mean difference that equals to zero. The mean difference being zero indicates that the means of the two groups are equal. Because the mean difference is not equal to zero, the null hypothesis should be rejected. 
+
+The confidence interval of the test is 95% which means that the range of the sample values would contain the population mean 95% of the time with a 5% margin of error. The 5% margin of error relates to the significance level. 
+
+Likewise, the p-value which equals 0.00233 is less than the significance level of 0.05. Therefore, this illustrates the difference between the means is significant. In turn, the null hypothesis is confirmed to be rejected. 
+
+```{r Paired-Sample Test}
+# Sort by group then ID
+sleep <- sleep[order(sleep$group, sleep$ID), ]
+
+# Paired t-test
+t.test(extra ~ group, sleep, paired=TRUE)
+```
+
+
+Calculate the statistical power for each test:
+
+Statistical Power for Independent Two-Sample T test: 
+
+The statistical power for the independent two sample t test is 0.979804. The statistical power is the probability that illustrates how a statistical test will detect differences between groups when they truly exist. For the two sample t test there is a high statistical power which means that the likelihood of making a Type 11 error (concluding no effect when there is one) decreases. Therefore, in relation to our dataset, it illustrates that there is a higher likelihood that there is in fact a statistical significance between the two means. 
+
+
+```{r}
+
+SD1 = sd(sleep_wide$group1)
+SD2 = sd(sleep_wide$group2)
+sd_pooled = sqrt((SD1^2+SD2^2)/2)
+```
+
+```{r}
+
+pwr.t.test(n = 10, d = sd_pooled , sig.level = 0.05, type = c("two.sample"))
+
+```
+
+Statistical Power for Paired T test: 
+
+The statistical power for the independent two sample t test is 0.999559. The statistical power is the probability that illustrates how a statistical test will detect differences between groups when they truly exist. For the two sample t test there is a high statistical power which means that the likelihood of making a Type 11 error (concluding no effect when there is one) decreases. Therefore, in relation to the paired t test, it illustrates that identifying that there is no statistical significance may be incorrect. 
+
+
+```{r}
+pwr.t.test(n = 10, d = sd_pooled , sig.level = 0.05, type = c("paired"))
+```
+
+##Conclusion
+This lab demonstrates using RMarkdown to identify:
+- Compare two groups using the independent two-sample t-test
+- Compare two groups using the Paired-sample t-test
+- Calculate the statistical power for each test
+
+The null hypothesis is failed to be rejected in the independent two-sample t-test but is rejected in the Paired sample t-test. 
+
+
